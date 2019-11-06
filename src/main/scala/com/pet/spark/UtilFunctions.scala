@@ -7,7 +7,8 @@ import scala.annotation.tailrec
   *
   * @author Robert Nad
   */
-class UtilFunctions {
+object UtilFunctions {
+
   def binarySearch[T](arrDiapason: Array[(T, T)], key: Comparable[T]): Option[Int] = {
     @tailrec
     def _binarySearch(lo: Int, hi: Int): Option[Int] = {
@@ -24,5 +25,9 @@ class UtilFunctions {
     }
 
     _binarySearch(0, arrDiapason.length - 1)
+  }
+  //todo
+  def notExistsColumn(nameColumn:String, columns:Seq[String], patternFunction:String=>String):String={
+    nameColumn
   }
 }
