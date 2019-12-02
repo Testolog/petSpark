@@ -1,11 +1,8 @@
 package com.pet.spark
 
-import java.text.SimpleDateFormat
-
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{col, dense_rank, sum, when, lit}
-import org.apache.spark.sql.{Column, DataFrame, Dataset}
-import org.joda.time.DateTime
+import org.apache.spark.sql.functions.{col, dense_rank, sum, when}
+import org.apache.spark.sql.{DataFrame, Dataset}
 
 /**
   * com.pet.spark
@@ -19,6 +16,7 @@ object GatherStatisticSpark {
     sourceDS
       .withColumn(nameRankColumn, dense_rank().over(Window.orderBy(col(dateColumn).desc)))
       .filter(col(nameRankColumn) <= statColumn.maxBy(p => p._2)._2)
+      .persist()
       .select(
         statColumn
           .map(r =>
