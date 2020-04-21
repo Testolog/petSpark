@@ -1,14 +1,7 @@
 package com.pet.spark
 
-import java.io.{PrintStream, PrintWriter}
-
-import org.apache.log4j.{Level, Logger}
-import org.apache.spark.SparkConf
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.col
-
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 
 /**
   * com.pet.spark
@@ -16,40 +9,41 @@ import scala.util.{Failure, Success, Try}
   * @author Robert Nad
   */
 object UnpersistJob extends App {
-  Logger.getLogger("org").setLevel(Level.OFF)
-  Logger.getLogger("akka").setLevel(Level.OFF)
 
-  val sparkSession = SparkSession
-    .builder()
-    .config(new SparkConf()
-      .setAppName("pet spark project")
-      .setMaster("local[*]"))
-    .enableHiveSupport
-    .getOrCreate()
+  implicit val ectx: ExecutionContextExecutor = ExecutionContext.global
 
-  def cascadeUnpersit(rdd: RDD[_]): Unit = {
-    rdd.unpersist(true)
-    rdd.dependencies.foreach(dep => cascadeUnpersit(dep.rdd))
+  def a(x: Int): Future[Int] = Future {
+    x
   }
 
-  Range(0, 3) foreach (_ => {
-    val realDS = sparkSession.range(10000)
-      .toDF()
-      .withColumn("id8", col("id") % 8)
-      .unpersist(true)
-      .persist()
-      .filter(col("id8") === 0)
-//    assert(sparkSession.sparkContext.getPersistentRDDs.nonEmpty)
-    realDS.count()
-    println(sparkSession.sparkContext.getPersistentRDDs)
-    println("____________________")
+  def b(x: Future[Int]): Future[String] = x.map(p => p.toString + "hello")
 
-    cascadeUnpersit(realDS.rdd)
+  def c: Int => Future[String] = a _ andThen b
 
-//    assert(sparkSession.sparkContext.getPersistentRDDs.isEmpty)
-    realDS.count()
-    println(sparkSession.sparkContext.getPersistentRDDs)
-    println("____________________")
-  })
+  //  print(c(10))
+
+
+  def div(d: Double): Future[Double] = Future {
+    d / 2
+  }
+
+
+  def div2(s: Double, d: Double): Future[Double] = Future {
+    s * d
+  }
+
+
+  def tryDiv(s: Double): Future[Double] = div(s) flatMap { x => div2(s, x) }
+
+  val i = Future {
+    2 * 10
+  }.flatMap(p => tryDiv(p))
+
+  val s = Future {
+    2 * 10
+  }
+    .flatMap(p => div(p))
+
+  println(Await.result(i, 5.second))
 
 }
