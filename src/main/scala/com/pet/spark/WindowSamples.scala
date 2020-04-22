@@ -99,7 +99,7 @@ object WindowSamples extends App {
     .show()
   //як працює рендж при агрегуванні
   //rangeBetween має в собі стартову позиці, та кінцеву, вираховується наступним чином
-  // current row + start and  current row + end
+  // value in (current row + start between current row + end)
   // таким чином для прикладу візьмемо 'sales' |1151.44, а також нижню границю в -250, а верхню в 500
   // та сформуємо список номерів замовлень, які потрапляють в один ціновий сегментів за однуй й туж дату
   // для простоти прикладу в якості унікального айді замовлення буду використовувати 'row_number' поточного дня
@@ -138,5 +138,35 @@ object WindowSamples extends App {
     +----------+-------+-------------+-------------+------------+
     */
 
+  //подібне до rangeBetween тільки працюєш з номерами ровом, по сортуванню в orderBy, по пепартиції
+  point1
+    .select(
+      'sales,
+      'quantityordered,
+      collect_list('quantityordered).over(Window
+        .orderBy('quantityordered)
+        .rowsBetween(-1, 2)).as("linkedSales")
+    ).orderBy('quantityordered)
+    .show()
+
+
+  //для подальшого розгляду можна вивести  статитиску продажів за послідні 7, 14, 30, 180, 365 днів
+  GatherStatisticSpark.getCountEventsByDatePeriod(baseInfo, "orderDate", Seq(("col7", 7), ("col14", 14))).show()
+  baseInfo
+    .withColumn("minimumDate", first('orderDate).over(Window.orderBy('orderDate)))
+    .select(
+      sum(when('orderDate <= date_add('minimumDate, 7), 1)
+        .otherwise(0)).alias("count7"),
+      sum(when('orderDate <= date_add('minimumDate, 14), 1)
+        .otherwise(0)).alias("count14"),
+      sum(when('orderDate <= date_add('minimumDate, 30), 1)
+        .otherwise(0)).alias("count30"),
+      sum(when('orderDate <= date_add('minimumDate, 180), 1)
+        .otherwise(0)).alias("count180"),
+      sum(when('orderDate <= date_add('minimumDate, 365), 1)
+        .otherwise(0)).alias("count365"),
+      max('sales).alias("maxPrice")
+    )
+    .show()
 
 }
