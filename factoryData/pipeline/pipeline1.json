@@ -1,0 +1,36 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "TestDataManipulationn",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.01:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/testolog5@gmail.com/TestDataManipulation",
+					"baseParameters": {
+						"inputContainer": "raw",
+						"outputContainer": "stage",
+						"storageName": "gen2petstorage"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricksFactory",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"containerName": "raw"
+					}
+				}
+			}
+		],
+		"annotations": []
+	}
+}
