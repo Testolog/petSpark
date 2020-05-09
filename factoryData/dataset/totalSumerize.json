@@ -1,0 +1,144 @@
+{
+	"name": "totalSumerize",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Totalsummerise",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "totalSumerize",
+				"fileSystem": "stage"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "YEAR_ID",
+				"type": "String"
+			},
+			{
+				"name": "namePeriod",
+				"type": "String"
+			},
+			{
+				"name": "Classic Cars_maxSales",
+				"type": "String"
+			},
+			{
+				"name": "Classic Cars_avgSales",
+				"type": "String"
+			},
+			{
+				"name": "Classic Cars_minSales",
+				"type": "String"
+			},
+			{
+				"name": "Classic Cars_count",
+				"type": "String"
+			},
+			{
+				"name": "Motorcycles_maxSales",
+				"type": "String"
+			},
+			{
+				"name": "Motorcycles_avgSales",
+				"type": "String"
+			},
+			{
+				"name": "Motorcycles_minSales",
+				"type": "String"
+			},
+			{
+				"name": "Motorcycles_count",
+				"type": "String"
+			},
+			{
+				"name": "Planes_maxSales",
+				"type": "String"
+			},
+			{
+				"name": "Planes_avgSales",
+				"type": "String"
+			},
+			{
+				"name": "Planes_minSales",
+				"type": "String"
+			},
+			{
+				"name": "Planes_count",
+				"type": "String"
+			},
+			{
+				"name": "Ships_maxSales",
+				"type": "String"
+			},
+			{
+				"name": "Ships_avgSales",
+				"type": "String"
+			},
+			{
+				"name": "Ships_minSales",
+				"type": "String"
+			},
+			{
+				"name": "Ships_count",
+				"type": "String"
+			},
+			{
+				"name": "Trains_maxSales",
+				"type": "String"
+			},
+			{
+				"name": "Trains_avgSales",
+				"type": "String"
+			},
+			{
+				"name": "Trains_minSales",
+				"type": "String"
+			},
+			{
+				"name": "Trains_count",
+				"type": "String"
+			},
+			{
+				"name": "Trucks and Buses_maxSales",
+				"type": "String"
+			},
+			{
+				"name": "Trucks and Buses_avgSales",
+				"type": "String"
+			},
+			{
+				"name": "Trucks and Buses_minSales",
+				"type": "String"
+			},
+			{
+				"name": "Trucks and Buses_count",
+				"type": "String"
+			},
+			{
+				"name": "Vintage Cars_maxSales",
+				"type": "String"
+			},
+			{
+				"name": "Vintage Cars_avgSales",
+				"type": "String"
+			},
+			{
+				"name": "Vintage Cars_minSales",
+				"type": "String"
+			},
+			{
+				"name": "Vintage Cars_count",
+				"type": "String"
+			}
+		]
+	}
+}
