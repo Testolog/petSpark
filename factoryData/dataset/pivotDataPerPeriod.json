@@ -1,5 +1,5 @@
 {
-	"name": "DelimitedText1",
+	"name": "pivotDataPerPeriod",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Totalsummerise",
