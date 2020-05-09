@@ -29,6 +29,84 @@
 						"containerName": "raw"
 					}
 				}
+			},
+			{
+				"name": "PivotToLake",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "TestDataManipulationn",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "pivotDataPerPeriod",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "LoadDataToLake_copy1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "TestDataManipulationn",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "pivotDataPerPeriod",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": []
