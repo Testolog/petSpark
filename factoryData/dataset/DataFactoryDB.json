@@ -1,5 +1,5 @@
 {
-	"name": "Pivot",
+	"name": "DataFactoryDB",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "DataFactoryDatalake",
