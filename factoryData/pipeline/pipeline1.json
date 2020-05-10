@@ -62,8 +62,7 @@
 						}
 					},
 					"sink": {
-						"type": "SqlServerSink",
-						"tableOption": "autoCreate"
+						"type": "SqlServerSink"
 					},
 					"enableStaging": false
 				},
