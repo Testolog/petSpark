@@ -1,0 +1,16 @@
+{
+	"name": "TotalSqlDataFactory",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DataFactoryDatalake",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "datafactory",
+			"table": "pivotSummarize"
+		}
+	}
+}
