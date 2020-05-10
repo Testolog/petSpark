@@ -1,0 +1,12 @@
+{
+	"name": "Pivot",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DataFactoryDatalake",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": []
+	}
+}
