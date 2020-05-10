@@ -75,7 +75,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DataFactoryDB",
+						"referenceName": "PivotSqlDataFactory",
 						"type": "DatasetReference"
 					}
 				]
@@ -125,56 +125,10 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DataFactoryDB",
+						"referenceName": "TotalSqlDataFactory",
 						"type": "DatasetReference"
 					}
 				]
-			},
-			{
-				"name": "MockSendMail",
-				"type": "GetMetadata",
-				"dependsOn": [
-					{
-						"activity": "TestDataManipulationn",
-						"dependencyConditions": [
-							"Failed"
-						]
-					},
-					{
-						"activity": "PivotToLake",
-						"dependencyConditions": [
-							"Failed"
-						]
-					},
-					{
-						"activity": "SumeryToLake",
-						"dependencyConditions": [
-							"Failed"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataset": {
-						"referenceName": "salesDataSample",
-						"type": "DatasetReference"
-					},
-					"fieldList": [],
-					"storeSettings": {
-						"type": "AzureBlobFSReadSettings",
-						"recursive": true
-					},
-					"formatSettings": {
-						"type": "DelimitedTextReadSettings"
-					}
-				}
 			}
 		],
 		"annotations": []
