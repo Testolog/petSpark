@@ -54,7 +54,8 @@
 						"type": "DelimitedTextSource",
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
-							"fileListPath": "stage/pivotDataPerPeriod",
+							"recursive": true,
+							"wildcardFileName": "part*",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
@@ -62,7 +63,9 @@
 						}
 					},
 					"sink": {
-						"type": "SqlServerSink"
+						"type": "SqlServerSink",
+						"preCopyScript": "drop table if exits datafactory.pivotData",
+						"tableOption": "autoCreate"
 					},
 					"enableStaging": false
 				},
@@ -111,7 +114,8 @@
 						"type": "DelimitedTextSource",
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
-							"fileListPath": "stage/totalSumerize",
+							"recursive": true,
+							"wildcardFileName": "part*",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
@@ -119,7 +123,9 @@
 						}
 					},
 					"sink": {
-						"type": "SqlServerSink"
+						"type": "SqlServerSink",
+						"preCopyScript": "drop table if exits datafactory.totalSummery",
+						"tableOption": "autoCreate"
 					},
 					"enableStaging": false
 				},
