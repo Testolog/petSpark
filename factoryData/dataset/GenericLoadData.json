@@ -1,16 +1,33 @@
 {
-	"name": "PivotSqlDataFactory",
+	"name": "GenericLoadData",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "DataFactoryDatalake",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"SchemaName": {
+				"type": "string"
+			},
+			"TableName": {
+				"type": "string"
+			},
+			"LoadTime": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "SqlServerTable",
 		"schema": [],
 		"typeProperties": {
-			"schema": "datafactory",
-			"table": "PivotSqlDataFactory"
+			"schema": {
+				"value": "@dataset().SchemaName",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().TableName",
+				"type": "Expression"
+			}
 		}
 	}
 }

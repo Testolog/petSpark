@@ -75,13 +75,21 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "PivotSqlDataFactory",
-						"type": "DatasetReference"
+						"referenceName": "GenericLoadData",
+						"type": "DatasetReference",
+						"parameters": {
+							"SchemaName": "datafactory",
+							"TableName": "PivotData",
+							"LoadTime": {
+								"value": "@formatDateTime(utcnow())",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			},
 			{
-				"name": "SumeryToLake",
+				"name": "TotalSummery",
 				"type": "Copy",
 				"dependsOn": [
 					{
@@ -112,8 +120,7 @@
 						}
 					},
 					"sink": {
-						"type": "SqlServerSink",
-						"tableOption": "autoCreate"
+						"type": "SqlServerSink"
 					},
 					"enableStaging": false
 				},
@@ -125,8 +132,13 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "TotalSqlDataFactory",
-						"type": "DatasetReference"
+						"referenceName": "GenericLoadData",
+						"type": "DatasetReference",
+						"parameters": {
+							"SchemaName": "datafactory",
+							"TableName": "totalSummery",
+							"LoadTime": "@formatDateTime(utcnow())"
+						}
 					}
 				]
 			}
