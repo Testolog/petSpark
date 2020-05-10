@@ -7,10 +7,6 @@
 		},
 		"annotations": [],
 		"type": "SqlServerTable",
-		"schema": [],
-		"typeProperties": {
-			"schema": "datafactory",
-			"table": "pivotSummarize"
-		}
+		"schema": []
 	}
 }
