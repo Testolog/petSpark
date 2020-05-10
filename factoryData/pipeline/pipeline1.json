@@ -54,7 +54,8 @@
 						"type": "DelimitedTextSource",
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
-							"recursive": true
+							"fileListPath": "stage/pivotDataPerPeriod",
+							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
 							"type": "DelimitedTextReadSettings"
@@ -74,7 +75,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "Pivot",
+						"referenceName": "DataFactoryDB",
 						"type": "DatasetReference"
 					}
 				]
@@ -123,7 +124,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "Pivot",
+						"referenceName": "DataFactoryDB",
 						"type": "DatasetReference"
 					}
 				]
