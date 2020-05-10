@@ -1,5 +1,5 @@
 {
-	"name": "DataFactoryDB",
+	"name": "PivotSqlDataFactory",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "DataFactoryDatalake",
@@ -7,6 +7,10 @@
 		},
 		"annotations": [],
 		"type": "SqlServerTable",
-		"schema": []
+		"schema": [],
+		"typeProperties": {
+			"schema": "datafactory",
+			"table": "pivotSummarize"
+		}
 	}
 }
