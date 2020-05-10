@@ -60,11 +60,21 @@
 							"type": "DelimitedTextReadSettings"
 						}
 					},
+					"sink": {
+						"type": "SqlServerSink",
+						"tableOption": "autoCreate"
+					},
 					"enableStaging": false
 				},
 				"inputs": [
 					{
 						"referenceName": "pivotDataPerPeriod",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Pivot",
 						"type": "DatasetReference"
 					}
 				]
@@ -99,11 +109,21 @@
 							"type": "DelimitedTextReadSettings"
 						}
 					},
+					"sink": {
+						"type": "SqlServerSink",
+						"tableOption": "autoCreate"
+					},
 					"enableStaging": false
 				},
 				"inputs": [
 					{
 						"referenceName": "totalSumerize",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Pivot",
 						"type": "DatasetReference"
 					}
 				]
@@ -114,6 +134,18 @@
 				"dependsOn": [
 					{
 						"activity": "TestDataManipulationn",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "PivotToLake",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "SumeryToLake",
 						"dependencyConditions": [
 							"Failed"
 						]
