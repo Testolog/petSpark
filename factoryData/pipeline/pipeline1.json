@@ -79,7 +79,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"SchemaName": "datafactory",
-							"TableName": "PivotData",
+							"TableName": "pivotData",
 							"LoadTime": {
 								"value": "@formatDateTime(utcnow())",
 								"type": "Expression"
