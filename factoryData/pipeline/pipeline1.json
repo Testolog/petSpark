@@ -63,9 +63,7 @@
 						}
 					},
 					"sink": {
-						"type": "SqlServerSink",
-						"preCopyScript": "drop table if exits datafactory.pivotData",
-						"tableOption": "autoCreate"
+						"type": "SqlServerSink"
 					},
 					"enableStaging": false
 				},
@@ -124,7 +122,6 @@
 					},
 					"sink": {
 						"type": "SqlServerSink",
-						"preCopyScript": "drop table if exits datafactory.totalSummery",
 						"tableOption": "autoCreate"
 					},
 					"enableStaging": false
