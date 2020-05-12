@@ -1,0 +1,44 @@
+{
+	"name": "GenericCSVFile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "GenericLinkToStageDataStore",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"fileSystem": {
+				"type": "string"
+			},
+			"pathToDir": {
+				"type": "string"
+			},
+			"fileNamePattern": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().fileNamePattern",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().pathToDir",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().fileSystem",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
