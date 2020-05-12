@@ -126,6 +126,7 @@
 					},
 					"sink": {
 						"type": "SqlServerSink",
+						"preCopyScript": "drop table if exists datafactory.totalSummery",
 						"tableOption": "autoCreate"
 					},
 					"enableStaging": false
