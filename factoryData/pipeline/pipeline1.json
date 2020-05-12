@@ -69,8 +69,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "pivotDataPerPeriod",
-						"type": "DatasetReference"
+						"referenceName": "GenericCSVFile",
+						"type": "DatasetReference",
+						"parameters": {
+							"fileSystem": "stage",
+							"pathToDir": "pivotDataPerPeriod",
+							"fileNamePattern": "part*"
+						}
 					}
 				],
 				"outputs": [
