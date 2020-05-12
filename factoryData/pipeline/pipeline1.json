@@ -63,7 +63,8 @@
 						}
 					},
 					"sink": {
-						"type": "SqlServerSink"
+						"type": "SqlServerSink",
+						"preCopyScript": "drop table if exists datafactory.pivotData"
 					},
 					"enableStaging": false
 				},
