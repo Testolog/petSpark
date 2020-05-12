@@ -54,8 +54,6 @@
 						"type": "DelimitedTextSource",
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
-							"recursive": true,
-							"wildcardFileName": "part*",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
@@ -73,8 +71,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"fileSystem": "stage",
-							"pathToDir": "pivotDataPerPeriod",
-							"fileNamePattern": "part*"
+							"pathToDir": "pivotDataPerPeriod"
 						}
 					}
 				],
