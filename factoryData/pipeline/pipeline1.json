@@ -3,39 +3,11 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "TestDataManipulationn",
-				"type": "DatabricksNotebook",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.01:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"notebookPath": "/Users/testolog5@gmail.com/TestDataManipulation",
-					"baseParameters": {
-						"inputContainer": "raw",
-						"outputContainer": "stage",
-						"storageName": "gen2petstorage"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "AzureDatabricksFactory",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"containerName": "raw"
-					}
-				}
-			},
-			{
 				"name": "PivotToLake",
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "TestDataManipulationn",
+						"activity": "Wait1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -64,7 +36,8 @@
 					},
 					"sink": {
 						"type": "SqlServerSink",
-						"preCopyScript": "drop table if exists datafactory.pivotData"
+						"preCopyScript": "drop table if exists datafactory.byCategorySummery",
+						"tableOption": "autoCreate"
 					},
 					"enableStaging": false
 				},
@@ -84,7 +57,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"SchemaName": "datafactory",
-							"TableName": "pivotData",
+							"TableName": "byCategorySummery",
 							"LoadTime": {
 								"value": "@formatDateTime(utcnow())",
 								"type": "Expression"
@@ -98,7 +71,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "TestDataManipulationn",
+						"activity": "Wait1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -153,6 +126,15 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
 			}
 		],
 		"annotations": []
