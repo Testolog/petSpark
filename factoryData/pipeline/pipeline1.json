@@ -75,7 +75,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "GenericLoadData",
+						"referenceName": "GenericSqlTable",
 						"type": "DatasetReference",
 						"parameters": {
 							"SchemaName": "datafactory",
@@ -134,7 +134,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "GenericLoadData",
+						"referenceName": "GenericSqlTable",
 						"type": "DatasetReference",
 						"parameters": {
 							"SchemaName": "datafactory",
