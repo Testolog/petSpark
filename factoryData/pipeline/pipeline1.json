@@ -132,8 +132,12 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "totalSumerize",
-						"type": "DatasetReference"
+						"referenceName": "GenericCSVFile",
+						"type": "DatasetReference",
+						"parameters": {
+							"fileSystem": "stage",
+							"pathToDir": "totalSumerize"
+						}
 					}
 				],
 				"outputs": [
