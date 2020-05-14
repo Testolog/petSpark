@@ -1,5 +1,5 @@
 {
-	"name": "Pivot",
+	"name": "Summery",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureSqlDatabase",
@@ -10,7 +10,7 @@
 		"schema": [],
 		"typeProperties": {
 			"schema": "datafactory",
-			"table": "byCategorySummery"
+			"table": "totalSummery"
 		}
 	}
 }
