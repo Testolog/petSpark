@@ -62,8 +62,11 @@
 					"secureInput": false
 				},
 				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[datafactory].[MockProcedure]"
+				},
 				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabase1",
+					"referenceName": "DataFactoryDatalake",
 					"type": "LinkedServiceReference"
 				}
 			},
