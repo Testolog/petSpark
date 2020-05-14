@@ -98,7 +98,7 @@
 					"source": {
 						"type": "SqlServerSource",
 						"sqlReaderQuery": {
-							"value": "select * from datafactory.byCategorySummery where year_id in @activity('Lookup1').output.c1",
+							"value": "select @activity('Lookup1').output.c1",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00"
