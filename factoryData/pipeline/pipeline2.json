@@ -40,33 +40,6 @@
 				}
 			},
 			{
-				"name": "Stored procedure1",
-				"type": "SqlServerStoredProcedure",
-				"dependsOn": [
-					{
-						"activity": "Wait1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"storedProcedureName": "[datafactory].[MockProcedure]"
-				},
-				"linkedServiceName": {
-					"referenceName": "DataFactoryDatalake",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
 				"name": "Wait1",
 				"type": "Wait",
 				"dependsOn": [],
@@ -98,10 +71,16 @@
 					"dataflow": {
 						"referenceName": "dataflow1",
 						"type": "DataFlowReference",
+						"parameters": {
+							"year_id": {
+								"value": "@item().c1",
+								"type": "Expression"
+							}
+						},
 						"datasetParameters": {
-							"totalSummery": {
-								"SchemaName": "datafactory",
-								"TableName": "totalSummery"
+							"sink1": {
+								"fileSystem": "stage",
+								"pathToDir": "JoinTwoTables"
 							}
 						}
 					},
@@ -109,6 +88,33 @@
 						"coreCount": 8,
 						"computeType": "General"
 					}
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Wait1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[datafactory].[MockProcedure]"
+				},
+				"linkedServiceName": {
+					"referenceName": "DataFactoryDatalake",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
