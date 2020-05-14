@@ -6,14 +6,14 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "GenericSQLDatabase",
+						"referenceName": "Pivot",
 						"type": "DatasetReference"
 					},
 					"name": "totalSummery"
 				},
 				{
 					"dataset": {
-						"referenceName": "GenericSQLDatabase",
+						"referenceName": "Pivot",
 						"type": "DatasetReference"
 					},
 					"name": "pivotTable"
@@ -34,7 +34,7 @@
 					"name": "Join1"
 				}
 			],
-			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 10,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select * from ',\n\tformat: 'query') ~> totalSummery\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 10,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> pivotTable\ntotalSummery filter(ERROR_FUNCTION('')) ~> Filter1\npivotTable filter(ERROR_FUNCTION('')) ~> Filter2\nFilter2 unpivot(output(\n\t\tproductline as string\n\t),\n\tlateral: false,\n\tignoreNullPivots: false) ~> Unpivon\nFilter1, Unpivon join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join1"
+			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 10,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select * from ',\n\tformat: 'query') ~> totalSummery\nsource(allowSchemaDrift: false,\n\tvalidateSchema: false,\n\tlimit: 10,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> pivotTable\ntotalSummery filter(ERROR_FUNCTION('')) ~> Filter1\npivotTable filter(ERROR_FUNCTION('')) ~> Filter2\nFilter2 unpivot(output(\n\t\tproductline as string\n\t),\n\tlateral: false,\n\tignoreNullPivots: false) ~> Unpivon\nFilter1, Unpivon join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join1"
 		}
 	}
 }

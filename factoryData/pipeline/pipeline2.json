@@ -102,10 +102,6 @@
 							"totalSummery": {
 								"SchemaName": "datafactory",
 								"TableName": "totalSummery"
-							},
-							"pivotTable": {
-								"SchemaName": "datafactory",
-								"TableName": "byCategorySummery"
 							}
 						}
 					},
