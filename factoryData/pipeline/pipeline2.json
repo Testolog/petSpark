@@ -23,21 +23,17 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "DelimitedTextSource",
-						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
-							"recursive": true
-						},
-						"formatSettings": {
-							"type": "DelimitedTextReadSettings"
-						}
+						"type": "SqlServerSource",
+						"sqlReaderStoredProcedureName": "[datafactory].[MockProcedure]",
+						"queryTimeout": "02:00:00"
 					},
 					"dataset": {
-						"referenceName": "GenericCSVFile",
+						"referenceName": "GenericSqlTable",
 						"type": "DatasetReference",
 						"parameters": {
-							"fileSystem": "stage",
-							"pathToDir": "Lookup"
+							"SchemaName": "datafactory",
+							"TableName": "byCategorySummery",
+							"LoadTime": "@formatDateTime(utcnow())"
 						}
 					},
 					"firstRowOnly": false
