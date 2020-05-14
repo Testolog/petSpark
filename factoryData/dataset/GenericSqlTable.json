@@ -13,7 +13,8 @@
 				"type": "string"
 			},
 			"LoadTime": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "@formatDateTime(utcnow())"
 			}
 		},
 		"annotations": [],
