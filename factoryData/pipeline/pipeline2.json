@@ -76,8 +76,8 @@
 				}
 			},
 			{
-				"name": "Copy data1",
-				"type": "Copy",
+				"name": "dataflow1",
+				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
 						"activity": "Lookup1",
@@ -95,48 +95,25 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "SqlServerSource",
-						"sqlReaderQuery": {
-							"value": "select @activity('Lookup1').output.c1",
-							"type": "Expression"
-						},
-						"queryTimeout": "02:00:00"
-					},
-					"sink": {
-						"type": "DelimitedTextSink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings"
-						},
-						"formatSettings": {
-							"type": "DelimitedTextWriteSettings",
-							"quoteAllText": true,
-							"fileExtension": ".txt"
+					"dataflow": {
+						"referenceName": "dataflow1",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"totalSummery": {
+								"SchemaName": "datafactory",
+								"TableName": "totalSummery"
+							},
+							"pivotTable": {
+								"SchemaName": "datafactory",
+								"TableName": "byCategorySummery"
+							}
 						}
 					},
-					"enableStaging": false
-				},
-				"inputs": [
-					{
-						"referenceName": "GenericSqlTable",
-						"type": "DatasetReference",
-						"parameters": {
-							"SchemaName": "datafactory",
-							"TableName": "byCategorySummery",
-							"LoadTime": "@formatDateTime(utcnow())"
-						}
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
 					}
-				],
-				"outputs": [
-					{
-						"referenceName": "GenericCSVFile",
-						"type": "DatasetReference",
-						"parameters": {
-							"fileSystem": "stage",
-							"pathToDir": "LookupResult"
-						}
-					}
-				]
+				}
 			}
 		],
 		"annotations": []

@@ -1,0 +1,40 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "GenericSQLDatabase",
+						"type": "DatasetReference"
+					},
+					"name": "totalSummery"
+				},
+				{
+					"dataset": {
+						"referenceName": "GenericSQLDatabase",
+						"type": "DatasetReference"
+					},
+					"name": "pivotTable"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "Filter1"
+				},
+				{
+					"name": "Filter2"
+				},
+				{
+					"name": "Unpivon"
+				},
+				{
+					"name": "Join1"
+				}
+			],
+			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 10,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select * from ',\n\tformat: 'query') ~> totalSummery\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 10,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> pivotTable\ntotalSummery filter(ERROR_FUNCTION('')) ~> Filter1\npivotTable filter(ERROR_FUNCTION('')) ~> Filter2\nFilter2 unpivot(output(\n\t\tproductline as string\n\t),\n\tlateral: false,\n\tignoreNullPivots: false) ~> Unpivon\nFilter1, Unpivon join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join1"
+		}
+	}
+}
