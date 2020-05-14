@@ -74,6 +74,69 @@
 				"typeProperties": {
 					"waitTimeInSeconds": 1
 				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select * from datafactory.byCategorySummery where year_id in @activity('Lookup1').output.c1",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "GenericSqlTable",
+						"type": "DatasetReference",
+						"parameters": {
+							"SchemaName": "datafactory",
+							"TableName": "byCategorySummery",
+							"LoadTime": "@formatDateTime(utcnow())"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "GenericCSVFile",
+						"type": "DatasetReference",
+						"parameters": {
+							"fileSystem": "stage",
+							"pathToDir": "LookupResult"
+						}
+					}
+				]
 			}
 		],
 		"annotations": []
