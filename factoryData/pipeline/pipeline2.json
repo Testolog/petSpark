@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Lookup1",
+				"name": "GetDataFromProcedure",
 				"type": "Lookup",
 				"dependsOn": [
 					{
@@ -76,11 +76,11 @@
 				}
 			},
 			{
-				"name": "ForEach1",
+				"name": "ForEachConditional",
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Lookup1",
+						"activity": "GetDataFromProcedure",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -132,11 +132,11 @@
 				}
 			},
 			{
-				"name": "Copy data1",
+				"name": "ToSingleFile",
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "ForEach1",
+						"activity": "ForEachConditional",
 						"dependencyConditions": [
 							"Succeeded"
 						]
