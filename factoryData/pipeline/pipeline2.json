@@ -89,7 +89,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Lookup1').output.value",
+						"value": "@activity('GetDataFromProcedure').output.value",
 						"type": "Expression"
 					},
 					"activities": [
