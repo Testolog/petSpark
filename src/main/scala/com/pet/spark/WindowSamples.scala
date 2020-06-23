@@ -117,7 +117,7 @@ object WindowSamples extends App {
         .rangeBetween(-250, 500)).as("linkedSales")
     ).orderBy('sales)
     .show()
-
+//  point1.withColumnRenamed()
   /*
 
     +----------+-------+-------------+-------------+------------+
@@ -167,6 +167,6 @@ object WindowSamples extends App {
         .otherwise(0)).alias("count365"),
       max('sales).alias("maxPrice")
     )
-    .show()
+
 
 }
