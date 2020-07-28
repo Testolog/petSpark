@@ -20,7 +20,7 @@ object ChunkRead {
   }
 
   class MergeFilesIterator[Val, Iter <: Iterator[Val]](inputIterators: Array[Iter],
-                                                       orderFunctionFunction: (Val, Val) => Int)
+                                                       comparatorFunction: (Val, Val) => Int)
     extends Iterator[Val] {
 
     override def hasNext: Boolean = {
@@ -42,7 +42,7 @@ object ChunkRead {
           returnValue = currentVal
           indexForUpdate = index
         } else {
-          if (orderFunctionFunction(returnValue, currentVal) > 0) {
+          if (comparatorFunction(returnValue, currentVal) > 0) {
             returnValue = currentVal
             indexForUpdate = index
           }

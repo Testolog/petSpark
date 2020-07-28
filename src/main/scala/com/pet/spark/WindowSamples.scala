@@ -11,10 +11,10 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.StructType
 
 /**
-  * com.pet.spark
-  *
-  * @author Robert Nad
-  */
+ * com.pet.spark
+ *
+ * @author Robert Nad
+ */
 object WindowSamples extends App {
 
   Logger.getLogger("org").setLevel(Level.OFF)
@@ -58,12 +58,13 @@ object WindowSamples extends App {
 
   import sparkSession.implicits._
 
+  private val structType = ScalaReflection.schemaFor[SamplesSales].dataType.asInstanceOf[StructType]
   val ds = sparkSession.read
-    .schema(ScalaReflection.schemaFor[SamplesSales].dataType.asInstanceOf[StructType])
     .option("header", "true")
+    .option("inferSchema", "true")
     .option("dateFormat", "MM/dd/yyyy")
-    .csv("sales_data_sample.csv")
-
+    .schema(structType)
+    .csv("/Users/testolog/Downloads/datasets_435_896_sales_data_sample.csv")
   val baseInfo = ds.select(
     'orderdate,
     'ordernumber,
@@ -76,17 +77,11 @@ object WindowSamples extends App {
     'productcode
   )
   //Rank function
-  val point1 = baseInfo.where(
-    ('orderdate === to_date(lit("2003-11-06")))
-      .and(
-        'ordernumber === 10175
-      )
-  )
   //сортування визначає що саме буде ранкуватись, та в межах яких об'ємів данних
   val productLineOrdering = Window.partitionBy('orderdate, 'ordernumber)
     .orderBy('quantityordered)
 
-  point1.select(
+  baseInfo.select(
     'orderdate, 'ordernumber, 'quantityordered, 'sales,
     row_number().over(productLineOrdering).as("row_number"),
     //для прикладу зрівння функцій ранкування
@@ -105,7 +100,7 @@ object WindowSamples extends App {
   // для простоти прикладу в якості унікального айді замовлення буду використовувати 'row_number' поточного дня
   //  також потрібно зауважити, що rangeBetween працює тільки з одинокою колонкою яка є в orderBy відвов функції, а також працює тільки з однією колонкою
 
-  point1
+  baseInfo
     .withColumn("row_number", row_number().over(Window.partitionBy('orderdate, 'ordernumber)
       .orderBy('sales)))
     .select('row_number,
@@ -117,7 +112,7 @@ object WindowSamples extends App {
         .rangeBetween(-250, 500)).as("linkedSales")
     ).orderBy('sales)
     .show()
-//  point1.withColumnRenamed()
+  //  point1.withColumnRenamed()
   /*
 
     +----------+-------+-------------+-------------+------------+
@@ -139,7 +134,7 @@ object WindowSamples extends App {
     */
 
   //подібне до rangeBetween тільки працюєш з номерами ровом, по сортуванню в orderBy, по репартиції
-  point1
+  baseInfo
     .select(
       'sales,
       'quantityordered,
@@ -166,7 +161,11 @@ object WindowSamples extends App {
       sum(when('orderDate <= date_add('minimumDate, 365), 1)
         .otherwise(0)).alias("count365"),
       max('sales).alias("maxPrice")
-    )
+    ).show()
 
+  val duplicate = baseInfo.union(baseInfo)
+  println(duplicate.count())
+  println(baseInfo.count())
+  duplicate.select(duplicate.columns.map(max): _*).show()
 
 }
