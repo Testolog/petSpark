@@ -1,10 +1,6 @@
 package com.pet.spark
 
-import java.sql.Date
-
-import org.apache.log4j.{Level, Logger}
-import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
+import com.pet.spark.models.SamplesSales
 import org.apache.spark.sql.catalyst.ScalaReflection
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
@@ -17,45 +13,6 @@ import org.apache.spark.sql.types.StructType
  */
 object WindowSamples extends App {
 
-  Logger.getLogger("org").setLevel(Level.OFF)
-  Logger.getLogger("akka").setLevel(Level.OFF)
-
-  case class SamplesSales(
-                           ordernumber: Option[Int],
-                           quantityordered: Option[Int],
-                           priceeach: Option[Double],
-                           orderlinenumber: Option[Int],
-                           sales: Option[Double],
-                           orderdate: Option[Date],
-                           status: Option[String],
-                           qtr_id: Option[Int],
-                           month_id: Option[Int],
-                           year_id: Option[Int],
-                           productline: Option[String],
-                           msrp: Option[Int],
-                           productcode: Option[String],
-                           customername: Option[String],
-                           phone: Option[String],
-                           addressline1: Option[String],
-                           addressline2: Option[String],
-                           city: Option[String],
-                           state: Option[String],
-                           postalcode: Option[String],
-                           country: Option[String],
-                           territory: Option[String],
-                           contactlastname: Option[String],
-                           contactfirstname: Option[String],
-                           dealsize: Option[String]
-                         )
-
-  val sparkSession = SparkSession
-    .builder()
-    .config(new SparkConf()
-      .setAppName("pet spark project")
-      .setMaster("local[*]"))
-    .enableHiveSupport
-    .getOrCreate()
-
   import sparkSession.implicits._
 
   private val structType = ScalaReflection.schemaFor[SamplesSales].dataType.asInstanceOf[StructType]
@@ -64,7 +21,7 @@ object WindowSamples extends App {
     .option("inferSchema", "true")
     .option("dateFormat", "MM/dd/yyyy")
     .schema(structType)
-    .csv("/Users/testolog/Downloads/datasets_435_896_sales_data_sample.csv")
+    .csv("sales_data_sample.csv")
   val baseInfo = ds.select(
     'orderdate,
     'ordernumber,
@@ -91,7 +48,7 @@ object WindowSamples extends App {
     //функція росподілу данних по партиції
     cume_dist().over(productLineOrdering).as("cume_dist"),
   ).orderBy('row_number)
-    .show()
+  //    .show()
   //як працює рендж при агрегуванні
   //rangeBetween має в собі стартову позиці, та кінцеву, вираховується наступним чином
   // value in (current row + start between current row + end)
@@ -111,7 +68,7 @@ object WindowSamples extends App {
         .orderBy('sales)
         .rangeBetween(-250, 500)).as("linkedSales")
     ).orderBy('sales)
-    .show()
+  //    .show()
   //  point1.withColumnRenamed()
   /*
 
@@ -142,11 +99,11 @@ object WindowSamples extends App {
         .orderBy('quantityordered)
         .rowsBetween(-1, 2)).as("linkedSales")
     ).orderBy('quantityordered)
-    .show()
+  //    .show()
 
 
   //для подальшого розгляду можна вивести  статитиску продажів за послідні 7, 14, 30, 180, 365 днів
-  GatherStatisticSpark.getCountEventsByDatePeriod(baseInfo, "orderDate", Seq(("col7", 7), ("col14", 14))).show()
+  //  GatherStatisticSpark.getCountEventsByDatePeriod(baseInfo, "orderDate", Seq(("col7", 7), ("col14", 14))).show()
   baseInfo
     .withColumn("minimumDate", first('orderDate).over(Window.orderBy('orderDate)))
     .select(
@@ -161,11 +118,50 @@ object WindowSamples extends App {
       sum(when('orderDate <= date_add('minimumDate, 365), 1)
         .otherwise(0)).alias("count365"),
       max('sales).alias("maxPrice")
-    ).show()
+    )
+  //    .show()
 
-  val duplicate = baseInfo.union(baseInfo)
-  println(duplicate.count())
-  println(baseInfo.count())
-  duplicate.select(duplicate.columns.map(max): _*).show()
-
+  val duplicate = baseInfo
+    .union(baseInfo)
+    .where(col("ordernumber") === 10108)
+    .persist()
+  duplicate.count()
+  val groupColumns = Seq("ordernumber", "quantityordered", "orderdate")
+  val valueGroupColumns = duplicate.columns
+    .filterNot(c => groupColumns.exists(_.equals(c)))
+    .map(c => max(c).as(c))
+  /*
+    часто доволі зустрічав такого плану код, коли потрібно було видалити дублікати, зрозуміло що в данному випадку
+    краще за все використовувати distinct, чи dropDuplicates.
+    */
+  val withoutDuplicate = duplicate
+    .groupBy(groupColumns.map(col): _*)
+    .agg(valueGroupColumns.head, valueGroupColumns.tail: _*)
+    .as("gp")
+  val withoutDuplicateByWindows = duplicate
+    .withColumn("rn_numb", row_number().over(Window
+      .partitionBy("ordernumber", "quantityordered").orderBy('orderdate.desc_nulls_last)))
+    .where('rn_numb === 1)
+    .drop('rn_numb)
+    .as("wp")
+  //  withoutDuplicate.columns
+  //    .filterNot(c => groupColumns.exists(_.equals(c)))
+  //        .map(c=>withoutDuplicate(c)): _*
+  //    .map(c => withoutDuplicate(c).equalTo(withoutDuplicateByWindows(c))).foreach(println)
+  withoutDuplicateByWindows.show()
+  val maskSalt = "mask_"
+  withoutDuplicate
+    .join(withoutDuplicateByWindows, groupColumns, "full")
+    .select(groupColumns.map(c => col(c).isNotNull.as(maskSalt + c)) ++
+      withoutDuplicate.columns
+        .filterNot(c => groupColumns.exists(_.equals(c)))
+        .map(c => (col("gp." + c) === col("wp." + c)).as(maskSalt + c))
+      ++ Seq(col("gp.*"), col("wp.*")): _*
+    )
+    .where(
+      withoutDuplicate.columns.map(c => col(maskSalt + c) === false).reduceLeft((acc, c) => acc.or(c))
+    )
+  //    .show()
+  println(withoutDuplicateByWindows.count())
+  println(withoutDuplicate.count())
 }
