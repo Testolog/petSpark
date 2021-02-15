@@ -1,6 +1,5 @@
 package com.pet.spark
 
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming._
@@ -13,19 +12,20 @@ import scala.collection.mutable
  * @author Robert Nad
  */
 object StreamingProcess extends App {
-  Logger.getLogger("org").setLevel(Level.OFF)
-  Logger.getLogger("akka").setLevel(Level.OFF)
   val dataQueue: mutable.Queue[RDD[Visit]] = new mutable.Queue[RDD[Visit]]()
   val streamingContext = new StreamingContext(new SparkConf().setAppName("stream tests")
     .setMaster("local[*]"), Seconds(1))
-
   streamingContext.checkpoint("/tmp/streaming")
+
 
   case class Visit(userId: Long, page: String, duration: Long)
 
   val visits = Seq(
-    Visit(1, "home.html", 10), Visit(2, "cart.html", 5), Visit(1, "home.html", 10),
-    Visit(2, "address/shipping.html", 10), Visit(2, "address/billing.html", 10)
+    Visit(1, "home.html", 10),
+    Visit(2, "cart.html", 5),
+    Visit(1, "home.html", 10),
+    Visit(2, "address/shipping.html", 10),
+    Visit(2, "address/billing.html", 10)
   )
   visits.foreach(visit => dataQueue += streamingContext.sparkContext.makeRDD(Seq(visit)))
   println(dataQueue.size)

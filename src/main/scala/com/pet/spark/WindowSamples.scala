@@ -97,9 +97,9 @@ object WindowSamples extends App {
       'quantityordered,
       collect_list('quantityordered).over(Window
         .orderBy('quantityordered)
-        .rowsBetween(-1, 2)).as("linkedSales")
+        .rowsBetween(Long.MinValue, 3)).as("linkedSales")
     ).orderBy('quantityordered)
-  //    .show()
+    .show()
 
 
   //для подальшого розгляду можна вивести  статитиску продажів за послідні 7, 14, 30, 180, 365 днів
@@ -148,7 +148,7 @@ object WindowSamples extends App {
   //    .filterNot(c => groupColumns.exists(_.equals(c)))
   //        .map(c=>withoutDuplicate(c)): _*
   //    .map(c => withoutDuplicate(c).equalTo(withoutDuplicateByWindows(c))).foreach(println)
-  withoutDuplicateByWindows.show()
+  //  withoutDuplicateByWindows.show()
   val maskSalt = "mask_"
   withoutDuplicate
     .join(withoutDuplicateByWindows, groupColumns, "full")
@@ -162,6 +162,7 @@ object WindowSamples extends App {
       withoutDuplicate.columns.map(c => col(maskSalt + c) === false).reduceLeft((acc, c) => acc.or(c))
     )
   //    .show()
-  println(withoutDuplicateByWindows.count())
-  println(withoutDuplicate.count())
+  //  println(withoutDuplicateByWindows.count())
+  //  println(withoutDuplicate.count())
+
 }

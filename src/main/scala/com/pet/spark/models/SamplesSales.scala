@@ -8,7 +8,7 @@ import java.sql.Date
  * @author Robert Nad
  */
 case class SamplesSales(
-                         ordernumber: Option[Int],
+                         ordernumber: Option[Double],
                          quantityordered: Option[Int],
                          priceeach: Option[Double],
                          orderlinenumber: Option[Int],
