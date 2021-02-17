@@ -1,12 +1,12 @@
-package com.pet.spark
+package com.pet.spark.utils
 
 import scala.annotation.tailrec
 
 /**
-  * com.pet.spark
-  *
-  * @author Robert Nad
-  */
+ * com.pet.spark
+ *
+ * @author Robert Nad
+ */
 object UtilFunctions {
 
   def binarySearch[T](arrDiapason: Array[(T, T)], key: Comparable[T]): Option[Int] = {
@@ -26,8 +26,9 @@ object UtilFunctions {
 
     _binarySearch(0, arrDiapason.length - 1)
   }
+
   //todo
-  def notExistsColumn(nameColumn:String, columns:Seq[String], patternFunction:String=>String):String={
+  def notExistsColumn(nameColumn: String, columns: Seq[String], patternFunction: String => String): String = {
     nameColumn
   }
 }

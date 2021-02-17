@@ -37,7 +37,6 @@ object WindowSamples extends App {
   //сортування визначає що саме буде ранкуватись, та в межах яких об'ємів данних
   val productLineOrdering = Window.partitionBy('orderdate, 'ordernumber)
     .orderBy('quantityordered)
-
   baseInfo.select(
     'orderdate, 'ordernumber, 'quantityordered, 'sales,
     row_number().over(productLineOrdering).as("row_number"),
@@ -100,7 +99,6 @@ object WindowSamples extends App {
         .rowsBetween(Long.MinValue, 3)).as("linkedSales")
     ).orderBy('quantityordered)
     .show()
-
 
   //для подальшого розгляду можна вивести  статитиску продажів за послідні 7, 14, 30, 180, 365 днів
   //  GatherStatisticSpark.getCountEventsByDatePeriod(baseInfo, "orderDate", Seq(("col7", 7), ("col14", 14))).show()

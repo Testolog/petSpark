@@ -1,5 +1,4 @@
-package com.pet.spark
-
+package com.pet.akka
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -20,7 +19,7 @@ import scala.concurrent.duration.DurationInt
  *
  * @author Robert Nad
  */
-object KafkaStreaming extends App {
+object CyclenDataToKafka extends App {
   implicit val system: ActorSystem = ActorSystem("KafkaService")
 
   def flowWriteToKafka(settings: ProducerSettings[String, String]): Sink[String, NotUsed] = Flow

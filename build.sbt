@@ -13,6 +13,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.8" % Test,
   "com.typesafe.akka" %% "akka-stream" % "2.6.12",
   "com.typesafe.akka" %% "akka-stream-kafka" % "2.0.7",
-  "com.github.dwickern" %% "scala-nameof" % "2.0.0",
-  "org.apache.kafka" %% "kafka" % "2.1.0"
+  //  "com.github.dwickern" %% "scala-nameof" % "2.0.0",
+  //  "org.apache.kafka" %% "kafka" % "2.1.0" excludeAll (ExclusionRule(organization = "com.fasterxml"))
 )
