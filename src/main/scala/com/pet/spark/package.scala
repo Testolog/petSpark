@@ -10,8 +10,8 @@ import org.apache.spark.sql.SparkSession
  * @author Robert Nad
  */
 package object spark {
-  Logger.getLogger("org").setLevel(Level.OFF)
-  Logger.getLogger("akka").setLevel(Level.OFF)
+  Logger.getLogger("org").setLevel(Level.ERROR)
+  Logger.getLogger("akka").setLevel(Level.ERROR)
   val sparkSession: SparkSession = SparkSession
     .builder()
     .config(new SparkConf()

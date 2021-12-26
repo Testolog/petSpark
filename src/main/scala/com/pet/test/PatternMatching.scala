@@ -7,41 +7,81 @@ package com.pet.test
  * @author Robert Nad
  */
 object PatternMatching extends App {
+  sealed trait Location
+
+  case object Start extends Location
+
+  case object Middle extends Location
+
+  case object End extends Location
 
   sealed trait PatternType
 
-  case class Any(len: Int) extends PatternType //.
+  case class Any(len: Int) extends PatternType
 
   case object AnyMany extends PatternType //.*
 
-  case class EndWithSubString(sub: String) extends PatternType //.*\w
+  case class LengthChecker(len: Int) extends PatternType
 
-  case class EndWithRepeatChar(char: Char, minimum: Int) extends PatternType //.*\w*
+  case class EndWithSubString(sub: String, skipLength: Int) extends PatternType //.*\w
+
+  case class EndWithRepeatChar(char: Char, skipLength: Int, minimum: Int) extends PatternType //.*\w*
 
   case class RepeatChar(sub: Char, minimum: Int) extends PatternType //\w{m}
 
-  case class EqualSubString(sub: String) extends PatternType //\w
+  case class EqualSubString(sub: String) extends PatternType
 
-  case class MatchingFlow(data: PatternType, next: Option[MatchingFlow]) {
+  case class FlowControl(current: String,
+                         processed: String,
+                         step: String,
+                         pattern: Option[PatternType],
+                         prev: Option[FlowControl]) {
 
-    def changeNext(next: MatchingFlow): MatchingFlow = MatchingFlow(data, Some(next))
+    def updateStatus(reduce: Int, append: Int, patternType: PatternType): FlowControl = {
+      val localStep = current.substring(0, append)
+      if (localStep.nonEmpty) FlowControl(
+        current.substring(reduce),
+        processed + localStep,
+        localStep,
+        Option(patternType),
+        Option(this)
+      ) else this
+    }
+  }
+
+
+  case class MatchingFlow(data: PatternType, next: Option[MatchingFlow], location: Location) {
+
+    def calLoc(location1: Location, location2: Location): Location = (location1, location2) match {
+      case (Start, Middle) => Start
+      case _ => location2
+    }
 
     def simplify(): MatchingFlow = {
       //щоб уникнути ситуації коли в кінці стрічки є значення яке зустрічалось поцентру але перед ним вже було значення
       //спробувати створити мапу значеннь які повинні зустрітись під час аналізу, і при маню патттерну аналізувати на кількість одиниць менше
+
       next match {
         case Some(future) =>
+          val flow = ((p: PatternType) => MatchingFlow(p, future.next, calLoc(location, future.location))).andThen(_.simplify())
           (data, future.data) match {
-            case (EqualSubString(c), EqualSubString(f)) => MatchingFlow(EqualSubString(c + f), future.next).simplify()
-            case (RepeatChar(sc, len), EqualSubString(sf)) if sf.length == 1 && sc == sf.head => MatchingFlow(RepeatChar(sc, len + 1), future.next).simplify()
-            case (RepeatChar(sc, clen), RepeatChar(sf, flen)) if sc == sf => MatchingFlow(RepeatChar(sc, clen + flen), future.next).simplify()
-            case (RepeatChar(sc, clen), EndWithSubString(sf)) => MatchingFlow(EndWithSubString((sc.toString * clen) + sf), future.next).simplify()
-            case (EndWithRepeatChar(sc, clen), EndWithSubString(sf)) => MatchingFlow(EndWithSubString((sc.toString * clen) + sf), future.next).simplify()
-            case (EndWithSubString(sc), EqualSubString(sf)) => MatchingFlow(EndWithSubString(sc + sf), future.next).simplify()
-            case (AnyMany, EqualSubString(f)) => MatchingFlow(EndWithSubString(f), future.next).simplify()
-            case (AnyMany, RepeatChar(sf, len)) => MatchingFlow(EndWithRepeatChar(sf, len), future.next).simplify()
-            case (Any(clen), Any(flen)) => MatchingFlow(Any(clen + flen), future.next).simplify()
-            case _ => changeNext(future.simplify())
+            case (EqualSubString(c), EqualSubString(f)) => flow(EqualSubString(c + f))
+            case (RepeatChar(sc, len), EqualSubString(sf)) if sf.length == 1 && sc == sf.head => flow(RepeatChar(sc, len + 1))
+            case (RepeatChar(sc, clen), RepeatChar(sf, flen)) if sc == sf => flow(RepeatChar(sc, clen + flen))
+            case (RepeatChar(sc, clen), EndWithSubString(sf, skipLength)) => flow(EndWithSubString((sc.toString * clen) + sf, skipLength))
+            case (EndWithRepeatChar(sc, cskipLength, clen), EndWithSubString(sf, fskipLength)) => flow(EndWithSubString((sc.toString * clen) + sf, cskipLength + fskipLength))
+            case (EndWithRepeatChar(sc, skipLength, clen), EqualSubString(sf)) => flow(EndWithSubString((sc.toString * clen) + sf, skipLength))
+            case (EndWithSubString(sc, skipLength), EqualSubString(sf)) => flow(EndWithSubString(sc + sf, skipLength))
+            case (Any(clen), Any(flen)) => flow(Any(clen + flen))
+            case (AnyMany, EqualSubString(f)) => flow(EndWithSubString(f, 0))
+            case (AnyMany, RepeatChar(sf, len)) => flow(EndWithRepeatChar(sf, len, 0))
+            case (AnyMany, Any(clen)) => flow(LengthChecker(clen))
+            case (AnyMany, AnyMany) => flow(AnyMany)
+            case (LengthChecker(clen), Any(flen)) => flow(LengthChecker(clen + flen))
+            case (LengthChecker(clen), EqualSubString(sub)) => flow(EndWithSubString(sub, clen))
+            case (LengthChecker(cLen), RepeatChar(sub, minimum)) => flow(EndWithRepeatChar(sub, cLen, minimum))
+            case (LengthChecker(cLen), AnyMany) => flow(LengthChecker(cLen))
+            case _ => MatchingFlow(data, next.map(_.simplify()), calLoc(location, future.location))
           }
         case None => this
       }
@@ -49,24 +89,25 @@ object PatternMatching extends App {
   }
 
 
-  def parseFlow(s: List[Char]): Option[MatchingFlow] = s match {
+  def parseFlow(s: List[Char], isStart: Boolean = false): Option[MatchingFlow] = s match {
     case Nil => None
-    case head :: Nil if isChar(head) => Some(MatchingFlow(EqualSubString(head.toString), None))
-    case head :: Nil if head == 46 => Some(MatchingFlow(Any(1), None))
+    case head :: Nil if isChar(head) => Some(MatchingFlow(EqualSubString(head.toString), None, End))
+    case head :: Nil if head == 46 => Some(MatchingFlow(Any(1), None, End))
     case head :: future :: tail =>
       if (isChar(head)) {
         if (isChar(future) | future == 46)
-          Some(MatchingFlow(EqualSubString(head.toString), parseFlow(future +: tail)))
+          Some(MatchingFlow(EqualSubString(head.toString), parseFlow(future +: tail), if (isStart) Start else Middle))
         else
-          Some(MatchingFlow(RepeatChar(head, 0), parseFlow(tail)))
+          Some(MatchingFlow(RepeatChar(head, 0), parseFlow(tail), if (isStart) Start else Middle))
       }
       else {
-        if (head == 46 && future == 42) Some(MatchingFlow(AnyMany, parseFlow(tail)))
-        else Some(MatchingFlow(Any(1), parseFlow(future +: tail)))
+        if (head == 46 && future == 42) Some(MatchingFlow(AnyMany, parseFlow(tail), if (isStart) Start else Middle))
+        else Some(MatchingFlow(Any(1), parseFlow(future +: tail), if (isStart) Start else Middle))
       }
   }
 
   def isChar(b: Char): Boolean = b >= 97 & b <= 122
+
 
   def getEndSubStringIndex(base: String, equal: String, index: Int = 0): Option[Int] = {
     if (index + equal.length - 1 >= base.length)
@@ -79,59 +120,75 @@ object PatternMatching extends App {
   }
 
   def matching(globalPattern: Option[MatchingFlow], globalString: String): Boolean = {
-    def go(pattern: Option[MatchingFlow], reducedString: String, collectedString: String, lastRepeat: String, res: Boolean = true): Boolean = {
-      if (!res) {
+    def go(pattern: Option[MatchingFlow], flowControl: FlowControl, isPassed: Boolean = true): Boolean = {
+      if (!isPassed) {
         return false
       }
-      println(reducedString, collectedString)
+      println(flowControl.current, flowControl.processed)
       pattern match {
         case Some(value) =>
           value.data match {
             case Any(len) =>
-              if (reducedString.length >= len) go(value.next, reducedString.substring(len), collectedString + reducedString.substring(0, len), lastRepeat)
+              if (flowControl.current.length >= len) go(value.next, flowControl.updateStatus(len, len, value.data))
               else false
-            case EndWithSubString(sub) => getEndSubStringIndex(reducedString, sub) match {
+            case RepeatChar(char, minimum) =>
+              val processed = flowControl.current.takeWhile(_ == char).toList.size
+              go(value.next, flowControl.updateStatus(processed, processed, value.data), isPassed = processed >= minimum)
+            case EqualSubString(sub) =>
+              if (flowControl.current.length >= sub.length) {
+                go(value.next, flowControl.updateStatus(sub.length, sub.length, value.data), isPassed = flowControl.current.startsWith(sub))
+              } else if (sub.length == 1) flowControl.pattern.exists {
+                case RepeatChar(ss, _) => ss == sub.head
+                case _ => false
+              } else false
+            // ANY to Many
+            case EndWithSubString(sub, skipLength) => getEndSubStringIndex(flowControl.current, sub, skipLength) match {
               case Some(index) =>
-                val processed = reducedString.substring(index).grouped(sub.length).takeWhile(_.equals(sub)).toList.size
-                go(value.next, reducedString.substring(index + (processed * sub.length)), collectedString + reducedString.substring(0, index + (processed * sub.length)), lastRepeat)
+                val subSequence = flowControl.current.substring(index)
+                val flow = value.location match {
+                  case End => if (subSequence.endsWith(sub))
+                    flowControl.updateStatus(index + subSequence.length, index + subSequence.length, value.data)
+                  else
+                    flowControl.updateStatus(index, index, value.data)
+                  case _ => flowControl.updateStatus(index, index, value.data)
+                }
+                go(value.next, flow)
               case None => false
             }
-            case EndWithRepeatChar(sub, len) => getEndSubStringIndex(reducedString, sub.toString) match {
+            case EndWithRepeatChar(sub, skipLength, len) => getEndSubStringIndex(flowControl.current, sub.toString, skipLength) match {
               case Some(index) =>
-                val processed = reducedString.substring(index).takeWhile(sub == _).toList.size
-                go(value.next, reducedString.substring(index).substring(processed), collectedString + reducedString.substring(0, index + processed), lastRepeat = sub.toString, res = processed >= len - 1)
-              case None => go(value.next, reducedString, collectedString, lastRepeat)
+                val processed = flowControl.current.substring(index).takeWhile(sub == _).toList.size
+                go(value.next, flowControl.updateStatus(index + processed, index + processed, value.data), isPassed = processed >= len - 1)
+              case None =>
+                value.location match {
+                  case End => go(value.next, flowControl.updateStatus(flowControl.current.length, flowControl.current.length, value.data))
+                  case _ => skipLength > 0 & flowControl.current.length >= skipLength
+                }
             }
-            case RepeatChar(char, minimum) =>
-              val processed = reducedString.takeWhile(_ == char).toList.size
-              go(value.next, reducedString.substring(processed), collectedString + reducedString.substring(0, processed), lastRepeat = if (processed > 0) char.toString else lastRepeat, res = processed >= minimum)
-            case EqualSubString(sub) =>
-              if (reducedString.length >= sub.length)
-                go(value.next, reducedString.substring(sub.length), collectedString + reducedString.substring(0, sub.length), lastRepeat, res = reducedString.startsWith(sub))
-              else lastRepeat.nonEmpty & sub.startsWith(lastRepeat)
-            case AnyMany =>
-              if (collectedString.isEmpty) go(value.next, reducedString, collectedString, lastRepeat)
-              else go(value.next, "", collectedString + reducedString, lastRepeat)
+            case LengthChecker(len) => go(value.next,
+              flowControl.updateStatus(flowControl.current.length, flowControl.current.length, value.data),
+              isPassed = flowControl.current.length >= len)
+            case AnyMany => go(value.next, flowControl.updateStatus(flowControl.current.length, flowControl.current.length, value.data))
           }
         case None =>
-          reducedString.isEmpty & collectedString.equals(globalString)
+          flowControl.current.isEmpty & flowControl.processed.equals(globalString)
       }
     }
 
-    go(globalPattern, globalString, "", "")
+    go(globalPattern, FlowControl(globalString, "", "", None, None))
   }
 
 
-  def isMatch(s: String, p: String): Boolean = {
-    if (s.isEmpty)
-      return p.isEmpty | p.equals(".*") | !p.equals(".")
-    if (p.isEmpty & s.nonEmpty)
-      return false
-    if (p.equals(".*"))
-      return true
-    val pattern = parseFlow(p.toList).map(_.simplify())
-    matching(pattern, s)
-  }
+  //  def isMatch(s: String, p: String): Boolean = {
+  //    if (s.isEmpty)
+  //      return p.isEmpty | p.equals(".*") | !p.equals(".")
+  //    if (p.isEmpty & s.nonEmpty)
+  //      return false
+  //    if (p.equals(".*"))
+  //      return true
+  //    val pattern = parseFlow(p.toList, isStart = true).map(_.simplify())
+  //    matching(pattern, s)
+  //  }
 
   //  val v = parseFlow("ab.*ab.*ab".toCharArray.toList).map(_.simplify())
 
@@ -139,20 +196,27 @@ object PatternMatching extends App {
   val equal = "23"
   val ss = "12345"
   println(ss.substring(0, 1))
-  //  println(ss.grouped(2).takeWhile(!z_.equals("34")).toList)
+  println("aaaab".takeWhile(_ == 'a').toList)
+  //    println(ss.grouped(2).takeWhile(!z_.equals("34")).toList)
 
   //  println(getEndSubStringIndex(ss, equal, 0) match {
   //    case Some(value) => ss.substring(value)
   //    case None => "bbad"
   //  })
   //  println(isMatch("abffffffabddddab", "ab.*ab.*ab"))
+  //  println(isMatch("a", "ab*a"))
   //  println(isMatch("sda", ".*sda.*"))
   //  println(isMatch("asaa", ".*sda.*"))
   //  println(isMatch("bbbaass", "b*.*s"))
   //  println(isMatch("bbbaassa", "b*.*s*s"))
-  //  println(isMatch("aaaaaaaaaaaacaaa", "ab*a*.*c*a"))
-  println(isMatch("abfadfa", ".*..."))
+  //  println(isMatch("aaba", "ab*a*c*a"))
+  //  println(isMatch("abfadfabgbbbgg", ".*....*a*b.*g*g"))
+  //  println(isMatch("ab", ".*..c*"))
+  //  println(isMatch("aasdfasdfasdfasdfas", "aasdf.*asdf.*asdf.*asdf.*s"))
 
+
+  //aaaaaaa, ...a*
+  //  println(isMatch("abgdede", "ab.*de"))
   //  println(isMatch("a", "ab*a"))
   //  println(isMatch("mississippi", "mis*is*ip*."))
 
@@ -162,7 +226,9 @@ object PatternMatching extends App {
   //  any=>a->E
   //  c=>a->E
   // ]
+  // a->[
 
+  // ]
   //  def generateFlow():
   // shift, reduce
   // ab.*ab.*ab
@@ -199,4 +265,36 @@ object PatternMatching extends App {
   * ab append end
   *
   * */
+
+
+  var memo: Array[Array[Boolean]] = null
+
+  def isMatch(text: String, pattern: String): Boolean = {
+    memo = new Array[Array[Boolean]](text.length + 1)
+    memo(0) = new Array[Boolean](pattern.length + 1)
+    dp(0, 0, text, pattern)
+  }
+
+  def dp(i: Int, j: Int, text: String, pattern: String): Boolean = {
+    if (memo(i)(j) != null) {
+      return memo(i)(j)
+    }
+    var ans: Boolean = false
+    if (j == pattern.length) {
+      ans = i == text.length
+    }
+    else {
+      val first_match: Boolean = (i < text.length && (pattern.charAt(j) == text.charAt(i) || pattern.charAt(j) == '.'))
+      if (j + 1 < pattern.length && pattern.charAt(j + 1) == '*') {
+        ans = (dp(i, j + 2, text, pattern) || first_match && dp(i + 1, j, text, pattern))
+      }
+      else {
+        ans = first_match && dp(i + 1, j + 1, text, pattern)
+      }
+    }
+    memo(i)(j) = ans
+    ans
+  }
+
+  println(isMatch("abcddcdccb", ".*c.*b"))
 }

@@ -28,6 +28,7 @@ object PersistsLeveling extends App {
 
   val cachePlane = Range(1, 4).map(p => {
     val df = sparkSession.range(0, p)
+    df.rdd
     sparkSession.createDataset(df.rdd.persist()).persist()
   })
   cachePlane.foreach(_.count())
