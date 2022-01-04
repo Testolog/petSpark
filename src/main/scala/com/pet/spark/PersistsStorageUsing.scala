@@ -38,7 +38,7 @@ object PersistsStorageUsing extends App {
   //there is exists persist when do action
   sparkSession.sharedState.cacheManager.lookupCachedData(semi).foreach(println(_))
   sparkSession.sparkContext.getPersistentRDDs.foreach(println(_))
-  println(sparkSession.sparkContext.getPersistentRDDs.size)
+  assert(sparkSession.sparkContext.getPersistentRDDs.size == 1)
   //drop persists
   semi
     .unpersist()
@@ -46,18 +46,18 @@ object PersistsStorageUsing extends App {
 
   println("after a part of persist")
   //persits data not exists anymore
-  println(sparkSession.sparkContext.getPersistentRDDs.size)
+  assert(sparkSession.sparkContext.getPersistentRDDs.isEmpty)
   sparkSession.sharedState.cacheManager
   //try to re persist by do action of upper level dataframe
   res.count()
   res.explain()
   println("after try to re persists from upper logical plan")
   sparkSession.sharedState.cacheManager.lookupCachedData(semi).foreach(println(_))
-  println(sparkSession.sparkContext.getPersistentRDDs.size)
+  assert(sparkSession.sparkContext.getPersistentRDDs.isEmpty)
   println("cache manager work on unique ids based on logical plan")
   res.explain()
   //persist again
   semi.persist().count()
-  println(sparkSession.sparkContext.getPersistentRDDs.size)
+  assert(sparkSession.sparkContext.getPersistentRDDs.size == 1)
   res.explain()
 }
