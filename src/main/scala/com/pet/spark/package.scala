@@ -1,6 +1,5 @@
 package com.pet
 
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
@@ -10,15 +9,15 @@ import org.apache.spark.sql.SparkSession
  * @author Robert Nad
  */
 package object spark {
-  Logger.getLogger("org").setLevel(Level.ERROR)
-  Logger.getLogger("akka").setLevel(Level.ERROR)
-  val sparkSession: SparkSession = SparkSession
-    .builder()
-    .config(new SparkConf()
-      .setAppName("pet spark project")
-      .setMaster("local[*]"))
-    .enableHiveSupport
-    .getOrCreate()
+//  Logger.getLogger("org").setLevel(Level.ERROR)
+//  Logger.getLogger("akka").setLevel(Level.ERROR)
+val sparkSession: SparkSession = SparkSession
+  .builder()
+  .config(new SparkConf()
+    .setAppName("pet spark project")
+    .setMaster("local[*]"))
+  .enableHiveSupport
+  .getOrCreate()
 
 
 }

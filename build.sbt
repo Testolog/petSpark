@@ -3,7 +3,7 @@ name := "PetSpark"
 version := "0.1"
 
 scalaVersion := "2.12.10"
-val sparkVersion = "3.1.2"
+val sparkVersion = "3.3.1"
 val akkaVersion = "2.6.17"
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion,

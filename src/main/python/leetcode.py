@@ -2,9 +2,24 @@ from typing import Optional, List
 
 
 class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
+    def __init__(self, val, next=None):
+        if type(val) == list:
+            if len(val) == 1:
+                self.next = None
+                self.val = val[0]
+            else:
+                self.val = val[0]
+                self.next = ListNode(val[1:])
+        else:
+            self.val = val
+            self.next = next
+
+    def __add__(self, other):
+        if self.next == None:
+            self.next = ListNode(other, None)
+        else:
+            self.next += other
+        return self
 
     def __str__(self):
         return f"val:{self.val}->{str(self.next)}"
@@ -165,25 +180,6 @@ class Solution:
         if left_head:
             second_node.next = left_head
         return first_node
-
-    def reverseKGroup(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
-        if not head:
-            return None
-        if not head.next:
-            return head
-        moved_head = head.next
-        prev = head.next
-        index = 2
-        while index < k:
-            prev = moved_head
-            moved_head = moved_head.next
-            index += 1
-        last = moved_head.next
-        first = head.next
-        moved_head.next = first
-        prev.next = head
-        head.next = last
-        return moved_head
 
     def strStr(self, haystack: str, needle: str) -> int:
         res = -1
@@ -687,7 +683,57 @@ class Solution:
         s = s.lower().strip().split("e")
         return _checker(s[0]) and _checker(s[1], -2) if len(s) == 2 else _checker(s[0])
 
+    def reverseKGroup(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+        # resolved but todo
+        if not head:
+            return None
+        if not head.next:
+            return head
+        result_head = None
+        next_window = head
+        while next_window:
+            i = 0
+            prev = next_window
+            temporary_head = next_window
+            while i < k:
+                prev = temporary_head
+                temporary_head = temporary_head.next
+                if not temporary_head:
+                    return result_head
+                i += 1
+            if not result_head:
+                result_head = prev
+            local_head_res = None
+            local_head = next_window
+            while local_head.next != prev:
+                right_head = local_head.next
+                next_value = right_head.next
+                local_head.next = next_value
+                right_head.next = local_head
+                local_head = right_head
+                if not local_head_res:
+                    local_head_res = local_head
+                local_head = local_head.next
+            next_window = temporary_head
+        return result_head
 
+
+# 3,1,2
 solution = Solution()
+print(solution.reverseKGroup(ListNode([1, 2, 3, 4, 5]), 2))
+# 1,2,3,4,5,6
 
-print(solution.isNumber("53.5e93"))
+# 1,2,3
+# 2,1,3
+# 2,3,1
+# 3,2,1
+
+# 1,2,3,4
+# 2,1,3,4
+# 2,3,1,4
+# 2,3,4,1
+# 2,3,4,1
+
+
+# find k element
+# 3
