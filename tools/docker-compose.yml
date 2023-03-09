@@ -1,13 +1,28 @@
 version: '3.8'
 services:
-  cache:
-    image: redis:6.2-alpine
+  client:
+    build:
+      context: ubuntu
     restart: always
-    ports:
-      - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    environment:
+      REDIS_OM_URL: "redis://default:5uper53cret@enterprise.redis.com:9139"
     volumes:
-      - cache:/data
+      - ./data/client:/data
+
+  redis:
+    image: redis/redis-stack:latest
+    restart: always
+    ports: [ 6379, 8001 ]
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ./data/redis:/data
+
 volumes:
-  cache:
+  data:
     driver: local
+
+
+
